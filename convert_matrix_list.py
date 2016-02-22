@@ -28,7 +28,7 @@ def convert_list_to_matrix(matrix,filename):
                 new_list.append(x)
         new_matrix.append(new_list)
     #print_matrix(new_matrix)
-    with open("incident_list_"+filename, 'w') as f:
+    with open("incidence_list_"+filename, 'w') as f:
         json.dump({"matrix":new_matrix}, f, ensure_ascii=False)
 
 # -------------------------------------------------------------------------------------
