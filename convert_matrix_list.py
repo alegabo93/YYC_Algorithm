@@ -18,7 +18,7 @@ import json
 # -------------------------------------------------------------------------------------
 def convert_list_to_matrix(matrix,filename):
 	# imprime matriz de entrada
-    print("Matriz de entrada:")
+    #print("Matriz de entrada:")
     #print_matrix(matrix)
     new_matrix = []
     for list in matrix:
@@ -27,7 +27,7 @@ def convert_list_to_matrix(matrix,filename):
             if(list[x]==1):
                 new_list.append(x)
         new_matrix.append(new_list)
-    print_matrix(new_matrix)
+    #print_matrix(new_matrix)
     with open("incident_list_"+filename, 'w') as f:
         json.dump({"matrix":new_matrix}, f, ensure_ascii=False)
 
@@ -50,3 +50,5 @@ if __name__ == '__main__':
         with open(options.matrix_file,'r') as json_file:
             matrix_file = json.load(json_file)
         convert_list_to_matrix(matrix_file["matrix"],options.matrix_file)
+
+    print("Listo!!!!")
