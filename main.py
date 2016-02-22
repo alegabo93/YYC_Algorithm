@@ -36,21 +36,27 @@ def append_lists(list1, list2):
 	return aux
 
 # Funcion que genera la sub matriz
-def create_sub_matrix(matrix, columns, rows):
+def create_sub_matrix(matrix, columns, rows,list_format=False):
 	sub_matrix = []
 	for line in range(0,rows+1):
 		aux = []
 		for x in columns:
-			aux.append(matrix[line][x])
+			if(list_format):
+				if x in matrix[line]:
+					aux.append(1)
+				else:
+					aux.append(0)
+			else:
+				aux.append(matrix[line][x])
 		sub_matrix.append(aux)
 	return sub_matrix
 
 # Funcion que determina si un conjunto es compatible
-def compatible_set(matrix, columns, rows):
-	min_matrix = create_sub_matrix(matrix, columns, rows)
+def compatible_set(matrix, columns, rows,list_format=False):
+	min_matrix = create_sub_matrix(matrix, columns, rows,list_format)
 	ones_list = {}
 	flag = True
-	
+
 	for x in range(len(min_matrix)):
 		elements_in_line = collections.Counter(min_matrix[x])
 		if elements_in_line[1] == 1:
@@ -59,7 +65,6 @@ def compatible_set(matrix, columns, rows):
 				ones_list[pos_one].append(x)
 			else:
 				ones_list[pos_one] = [x]
-
 	for x in range(len(min_matrix[0])):
 		if not ones_list.get(x, False):
 			flag = False
@@ -71,7 +76,7 @@ def compatible_set(matrix, columns, rows):
 # ---------------------------- YYC algotithm ------------------------------------------
 # -------------------------------------------------------------------------------------
 
-def yyc_algorithm(matrix,print_steps=False):
+def yyc_algorithm(matrix,print_steps=False,list_format=False):
 	hits = 0
 
 	# imprime matriz de entrada
@@ -79,15 +84,23 @@ def yyc_algorithm(matrix,print_steps=False):
 	print_matrix(matrix)
 
 	# Ingresar los unos del primer renglon a la pila Ψ
-	Ψ = [[x] for x,y in enumerate(matrix[0]) if y == 1]
+	if(list_format):
+		Ψ = [[x] for x in matrix[0]]
+	else:
+		Ψ = [[x] for x,y in enumerate(matrix[0]) if y == 1]
+
 	max_len = len(Ψ)
-	
+
 	# Recorrer cada fila de la matriz
 	for i in range(1, len(matrix)):
 		Ψaux = []
 
 		for element in Ψ:
-			ones = [x for x,y in enumerate(matrix[i]) if y == 1]
+			if(list_format):
+				ones = matrix[i]
+			else:
+				ones = [x for x,y in enumerate(matrix[i]) if y == 1]
+
 			if (len(intersection_lists(element, ones)) != 0):
 				hits += 1
 				Ψaux.append(element)
@@ -96,9 +109,9 @@ def yyc_algorithm(matrix,print_steps=False):
 				for x in ones:
 					hits += 1
 					sub_matrix = append_lists(element,x)
-					if(compatible_set(matrix, sub_matrix, i)):
+					if(compatible_set(matrix, sub_matrix, i,list_format)):
 						Ψaux.append(sub_matrix)
-		
+
 		if (print_steps):
 			print('Ψaux', i, ':')
 			print_matrix(Ψaux)
@@ -118,6 +131,7 @@ def yyc_algorithm(matrix,print_steps=False):
 	print('\nLongitud Ψ:', len(Ψ))
 	print('Hits:', hits)
 	print('max_len:', max_len)
+
 	return
 
 
@@ -186,6 +200,12 @@ if __name__ == '__main__':
 						default = 'N',
 						help = 'Muestra los pasos del algoritmo YYC: Y(si), N(No)' )
 
+	parser.add_argument('-l', '--file_list',
+						nargs = '?',
+						dest = 'list_file',
+						default = False,
+						help = 'Inserta una matriz en formato de lista de incidencia desde un archivo json' )
+
 	options = parser.parse_args()
 
 
@@ -193,10 +213,14 @@ if __name__ == '__main__':
 		with open(options.matrix_file,'r') as json_file:
 			matrix_file = json.load(json_file)
 		matriz_seleccionada = matrix_file["matrix"]
+	elif(options.list_file):
+		with open(options.list_file,'r') as json_file:
+			matrix_file = json.load(json_file)
+		matriz_seleccionada = matrix_file["matrix"]
 	else:
 		matriz_seleccionada = matrix[options.matrix]
 
 	if (options.print_steps == 'Y'):
-		yyc_algorithm(matriz_seleccionada, True)
+		yyc_algorithm(matriz_seleccionada, True,options.list_file)
 	else :
-		yyc_algorithm(matriz_seleccionada, False)
+		yyc_algorithm(matriz_seleccionada, False,options.list_file)
